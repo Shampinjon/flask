@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Дополнительные стили только для этой страницы */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+        }
+        
+        .header a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Блог</h1>
+            <div>
+                {% if session.name %}
+                    <span>Привет, {{ session.name }}!</span>
+                    <a href="{{ url_for('profile') }}">Профиль</a>
+                    <a href="{{ url_for('logout') }}">Выйти</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}">Регистрация</a>
+                    <a href="{{ url_for('login') }}">Вход</a>
+                {% endif %}
+            </div>
+        </div>
+
+    <!-- Flash сообщения -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Кнопка создания поста для авторизованных -->
+    {% if session.name %}
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="{{ url_for('add_post') }}" style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+            + Создать пост
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Фильтры и сортировка -->
+<div class="controls">
+    <div class="filter">
+        <span>Жанр:</span>
+        <select id="genre-filter" onchange="filterByGenre()">
+            <option value="all" {% if current_genre == None %}selected{% endif %}>Все жанры</option>
+            {% for genre in genres %}
+            <option value="{{ genre.id }}" {% if current_genre == genre.id|string %}selected{% endif %}>
+                {{ genre.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="sort">
+        <span>Сортировка:</span>
+        <select id="sort-filter" onchange="sortPosts()">
+            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Сначала новые</option>
+            <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Сначала старые</option>
+            <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>По заголовку (А-Я)</option>
+            <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>По заголовку (Я-А)</option>
+        </select>
+    </div>
+</div>
+
+    <!-- Список постов -->
+<div class="posts-list">
+    {% if posts %}
+        {% for post in posts %}
+        <div class="post">
+            <h2>{{ post.title }}</h2>
+            <div class="post-meta">
+                <span>Автор: {{ post.author_name or 'Аноним' }}</span>
+                <span>Дата: {{ post.created_at.split()[0] if post.created_at else 'Не указано' }}</span>
+                {% if post.genre_name %}
+                <span class="genre-tag">{{ post.genre_name }}</span>
+                {% endif %}
+            </div>
+            <!-- Отображение изображения если оно есть -->
+            {% if post.image_filename %}
+            <div class="post-image">
+                <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" 
+                     alt="{{ post.title }}" 
+                     style="max-width: 100%; height: auto; border-radius: 5px; margin-bottom: 15px;">
+            </div>
+            {% endif %}
+            <div class="post-content">
+                {{ post.content|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="post">
+            <p>Пока нет постов. Будьте первым!</p>
+        </div>
+    {% endif %}
+</div>
+
+    <script>
+        function filterByGenre() {
+            const genreId = document.getElementById('genre-filter').value;
+            const currentUrl = new URL(window.location.href);
+            
+            if (genreId === 'all') {
+                currentUrl.searchParams.delete('genre');
+            } else {
+                currentUrl.searchParams.set('genre', genreId);
+            }
+            
+            window.location.href = currentUrl.toString();
+        }
+        
+        function sortPosts() {
+            const sortBy = document.getElementById('sort-filter').value;
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('sort', sortBy);
+            window.location.href = currentUrl.toString();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Дополнительные стили только для этой страницы */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .user-email {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .forgot-password a {
+            color: #666;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Если пользователь уже авторизован -->
+        {% if session.name %}
+        <div class="auth-box">
+            <div class="already-logged-in">
+                <h1>Вы уже вошли в систему</h1>
+                <p>Вы авторизованы как <span class="user-email">{{ session.name }}</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px;">
+                    <a href="{{ url_for('main') }}" class="btn" style="width: auto; padding: 10px 25px;">На главную</a>
+                    <a href="{{ url_for('profile') }}" class="btn" style="width: auto; padding: 10px 25px; background-color: #4CAF50;">Профиль</a>
+                    <a href="{{ url_for('logout') }}" class="btn" style="width: auto; padding: 10px 25px; background-color: #f44336;">Выйти</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Если пользователь не авторизован -->
+        {% else %}
+        <div class="auth-box">
+            <h1>Вход в систему</h1>
+            
+            <!-- Flash сообщения -->
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Email" required 
+                           value="{{ request.form.email if request.form.email }}">
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="Пароль" required>
+                    <div class="forgot-password">
+                        <!-- Можно добавить восстановление пароля в будущем -->
+                        <!-- <a href="#">Забыли пароль?</a> -->
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Войти</button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрируйтесь</a></p>
+                <p>или <a href="{{ url_for('main') }}">вернитесь на главную</a></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить пост</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Дополнительные стили только для этой страницы */
+        .container {
+            max-width: 800px;
+        }
+        
+        textarea {
+            min-height: 200px;
+        }
+        
+        /* Стиль для кнопки публикации */
+        .publish-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .publish-btn:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .publish-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* Стиль для кнопки отмены */
+        .cancel-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background-color: #f5f5f5;
+            color: #666;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #e0e0e0;
+            border-color: #bbb;
+            color: #333;
+        }
+        
+        /* Контейнер для кнопок */
+        .form-buttons {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Добавить новый пост</h1>
+        
+        <!-- Flash сообщения -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <form action="/add_post/" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Заголовок:</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="Введите заголовок поста" maxlength="200">
+            </div>
+            
+            <div class="form-group">
+                <label for="genre">Жанр:</label>
+                <select id="genre" name="genre" required>
+                    <option value="">Выберите жанр</option>
+                    {% for genre in genres %}
+                    <option value="{{ genre.id }}">{{ genre.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="image">Изображение (необязательно):</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                <small>Разрешены: JPG, PNG, GIF, WebP. Максимальный размер: 16MB</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Содержимое:</label>
+                <textarea id="content" name="content" required 
+                          placeholder="Напишите содержание поста здесь..."></textarea>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="publish-btn">📢 ОПУБЛИКОВАТЬ ПОСТ</button>
+                <a href="{{ url_for('main') }}" class="cancel-btn">❌ Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

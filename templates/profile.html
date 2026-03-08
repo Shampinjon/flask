@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Дополнительные стили только для этой страницы */
+        .header {
+            text-align: center;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .user-posts {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ваш профиль</h1>
+            <p>Добро пожаловать в личный кабинет!</p>
+        </div>
+        <!-- Остальной код остается без изменений -->
+
+        <!-- Flash сообщения -->
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% if user[4] == 0 %}
+            <div class="user-info">
+                
+                <h2>Введите код</h2>
+                <form method="POST">
+                    <div class="form-group">
+                        <input type="text" name="code-form" placeholder="number" required>
+                    </div>
+                    
+
+                    <button type="submit" class="btn btn-primary" name="verify">Проверить почту</button>
+                    <button type="submit" class="btn" name="resend-code" style="background-color: #2196F3;">Отправить код повторно</button>
+                </form>
+            </div>
+        {% endif %}
+        <div class="user-info">
+            <h2>Информация о пользователе</h2>
+            <div class="info-item">
+                <span class="info-label">Имя:</span>
+                <span>{{ name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Последний вход:</span>
+                <span>{{ user[6] if user[6] else 'Первый вход' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span>{{ user[2] }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Дата регистрации:</span>
+                <span>{{ user[5].split()[0] if user[5] else 'Не указано' }}</span>
+            </div>
+            
+            <div class="buttons">
+                <a href="{{ url_for('add_post') }}" class="btn btn-primary">Новый пост</a>
+                <a href="{{ url_for('main') }}" class="btn" style="background-color: #2196F3;">На главную</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Выйти</a>
+            </div>
+        </div>
+
+        <div class="user-posts">
+            
+    <h2>Ваши посты</h2>
+    
+    {% if posts %}
+        {% for post in posts %}
+        <div class="post-item">
+            <div class="post-title">{{ post.title }}</div>
+            <div class="post-meta">
+                <span>Дата: {{ post.created_at.split()[0] if post.created_at else 'Не указано' }}</span>
+                {% if post.genre_name %}
+                <span class="genre-tag">{{ post.genre_name }}</span>
+                {% endif %}
+            </div>
+            <!-- Изображение поста -->
+                    {% if post.image_filename %}
+                    <div class="post-image">
+                        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" 
+                             alt="{{ post.title }}"
+                             onclick="openImageModal(this.src, '{{ post.title }}')">
+                    </div>
+                    {% endif %}
+            <div class="post-content">
+                {{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-posts">
+            <p>У вас еще нет постов. Создайте первый!</p>
+        </div>
+    {% endif %}
+</div>
+    </div>
+</body>
+</html>
