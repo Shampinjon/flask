@@ -168,9 +168,17 @@ def get_posts(sort_by='newest', genre_id=None):
     return formatted_posts
 
 def get_all_genres():
-    cur.execute('SELECT * FROM genres ORDER BY name')
+    #cur.execute('SELECT * FROM genres ORDER BY name')
+    cur.execute('''SELECT 
+    g.id, g.name AS genre,
+    COUNT(p.id) AS posts_count,
+    MAX(p.created_at) AS last_post_date
+    FROM genres g
+    LEFT JOIN posts p ON g.id = p.genre_id
+    GROUP BY g.id, g.name
+    ORDER BY posts_count DESC;''')
     genres_data = cur.fetchall()
-    return [{'id': g[0], 'name': g[1]} for g in genres_data]
+    return [{'id': g[0], 'name': g[1], 'count': g[2]} for g in genres_data]
 
 @app.route('/')
 def main():

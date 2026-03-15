@@ -1,2 +1,4 @@
 /.env
 /.venv
+users.db
+venv

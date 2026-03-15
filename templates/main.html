@@ -70,7 +70,7 @@
             <option value="all" {% if current_genre == None %}selected{% endif %}>Все жанры</option>
             {% for genre in genres %}
             <option value="{{ genre.id }}" {% if current_genre == genre.id|string %}selected{% endif %}>
-                {{ genre.name }}
+                {{ genre.name }} - {{ genre.count }}
             </option>
             {% endfor %}
         </select>
